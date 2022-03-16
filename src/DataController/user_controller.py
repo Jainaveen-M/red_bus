@@ -97,7 +97,7 @@ class UserController():
         return check_password_hash(hashed_password, password)
             
     def send_OTP(user_id):
-        otp = random.randint(0,999999)
+        otp = random.randint(100000,999999)
         db_session = Session()
         set_otp = OTP(user_id=user_id,otp=otp)
         db_session.add(set_otp)

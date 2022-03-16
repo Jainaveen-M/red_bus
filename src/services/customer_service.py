@@ -33,13 +33,13 @@ def create_user():
     
         for user in user_list:
             if data['username']==user.username:
-                return jsonify({"Error":"username alread taken"})
+                return jsonify({"status":"failed","message":"username alread taken"})
             if data['email']==user.email:
-                return jsonify({"Error":"Email is already registered"})
+                return jsonify({"status":"failed","message":"Email is already registered"})
             if data['phone_number']==user.phone_number:
-                return jsonify({"Error":"Phone number is already registered"})
+                return jsonify({"status":"failed","message":"Phone number is already registered"})
         if len(data['phone_number']) < 10:
-            return jsonify({"Error":"Your phone number must contains 10 character"})
+            return jsonify({"status":"failed","message":"Your phone number must contains 10 character"})
 
         UserController.create_user(username=data['username'],email=data['email'],phone_number=data['phone_number'],password=data['password'],gender=data['gender'],is_email_verified=data['is_email_verified'],login_type=data['login_type'])
         return jsonify(data)
@@ -48,15 +48,15 @@ def create_user():
     
 
 
-@ct_service.route('/user/update/<id>',methods=['PUT'])
-def update_user():
-    from src.services.db import Session
-    data = request.json
-    db_session = Session()
-    update_user = db_session.query(User).filter(User.id==id).one()
-    update_user.username = data['username']
-    db_session.commit()
-    return "User Updated Successfully --> id : {0} name : {1}".format(id,data['username'])
+# @ct_service.route('/user/update/<id>',methods=['PUT'])
+# def update_user():
+#     from src.services.db import Session
+#     data = request.json
+#     db_session = Session()
+#     update_user = db_session.query(User).filter(User.id==id).one()
+#     update_user.username = data['username']
+#     db_session.commit()
+#     return jsonify({"status":"succes","message":"User details updated successfully"})
     
 
 @ct_service.route('/signup/email',methods=['POST'])
@@ -69,7 +69,7 @@ def signup_with_email():
         if not UserController.is_valid_email(data['email']):
             return jsonify({"Error":"Email is not valid"})
         elif not (check_email is None):
-            return jsonify({"Error":"Email is already taken"})
+            return jsonify({"status":"failed","message":"Email is already taken"})
         else:
             new_user =UserController.create_user(email=data['email'],password=generate_password,is_email_verified=data['is_email_verified'],login_type=data['login_type'])
             return jsonify({"status":"success","message":"user created successfully","data":str(new_user)})
@@ -86,19 +86,21 @@ def signup_with_mobile():
         data = request.json
         check_phoneNo = UserController.check_phoneNo(data['phone_number'])
         if UserController.validate_phoneNumber(data['phone_number']):
-            return jsonify({"Error":"phone number is not valid. It must contain 10 digits"})
+            return jsonify({"status":"failed","message":"phone number is not valid. It must contain 10 digits"})
         elif not (check_phoneNo is None):
-            return jsonify({"Error":"phone number is already taken"})
+            return jsonify({"status":"failed","message":"phone number is already taken"})
         else:
             new_user =UserController.create_user(phone_number=data['phone_number'],login_type=data['login_type'])
-            return jsonify({"status":"success","message":"user created successfully","data":str(new_user)})
+            print(">>>>>>>>  check phone number : {0}".format(new_user.id))
+            view_otp = UserController.send_OTP(new_user.id)
+            return jsonify({"status":"success","message":"user created successfully","data":str(new_user),"OTP":"Enter this OTP : "+str(view_otp)})
     except Exception as e:
         print(str(e))
     return jsonify({"Error":"Unknown"})
 
 
 
-@ct_service.route('/<userid>/send/otp',methods=['GET'])
+@ct_service.route('/send/otp/<userid>',methods=['GET'])
 def send_code(userid):
     try:
         otp = UserController.send_OTP(userid)
@@ -107,12 +109,14 @@ def send_code(userid):
         return  jsonify({"Error":str(e)})
     
 
-@ct_service.route('/<userid>/verify/otp',methods=['POST'])
+@ct_service.route('/verify/otp/<userid>',methods=['POST'])
 def verify_otp(userid):
     try:
         data = request.json
         otp = UserController.verify_otp(user_id=userid,otp=data['otp'])
-        return jsonify({"otp_status":otp,"message":"OTP verified successfully"})
+        otp_status = "success" if otp else "failed"
+        otp_message = "OTP verified successfully" if otp else "OTP verified Failed"
+        return jsonify({"otp_status":otp_status,"message":otp_message})
     except Exception as e:
         return  jsonify({"Error":str(e)})
 
@@ -127,7 +131,8 @@ def signup_create_user(userid):
         return jsonify({"status":"success","message":"user details updated successfully"})
     except Exception as e:
         print(str(e))
-    return "Error"
+        db_session.rollback()
+    return jsonify({"status":"failed","message":"user details not updated"})
         
  
  
@@ -152,7 +157,7 @@ def login_with_phone():
         check_user= UserController.validate_phoneNumber_login(phonenumber=data['phone_number'])
         if not (check_user is None):
             otp = UserController.send_OTP(check_user.id)
-            return jsonify({"status":"success","message":"OTP has send to the phone number "+check_user.phone_number,"OTP":otp})      
+            return jsonify({"status":"success","message":"OTP has send to the phone number "+check_user.phone_number,"OTP":otp,"user_id":check_user.id})      
     except Exception as e:
         print(str(e))             
     return jsonify({"status":"failed","message":"user does not exist"})
