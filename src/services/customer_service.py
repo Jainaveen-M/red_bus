@@ -70,9 +70,11 @@ def signup_with_email():
             return jsonify({"Error":"Email is not valid"})
         elif not (check_email is None):
             return jsonify({"status":"failed","message":"Email is already taken"})
+        elif len(data['password'])<8:
+            return jsonify({"status":"failed","message":"Your password must contains atleast 8 characters"})
         else:
             new_user =UserController.create_user(email=data['email'],password=generate_password,is_email_verified=data['is_email_verified'],login_type=data['login_type'])
-            return jsonify({"status":"success","message":"user created successfully","data":str(new_user)})
+            return jsonify({"status":"success","message":"user created successfully","data":{"id":new_user.id}})
     except Exception as e:
          return jsonify({"Error":str(e)})
      
