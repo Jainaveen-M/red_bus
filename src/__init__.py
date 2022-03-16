@@ -1,7 +1,5 @@
 from flask import Flask
-from src.DataController.customerService import ct_service
-
-
+from src.services.customer_service import ct_service
 
 
 def create_app():
