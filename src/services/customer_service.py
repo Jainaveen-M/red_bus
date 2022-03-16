@@ -95,7 +95,7 @@ def signup_with_mobile():
             new_user =UserController.create_user(phone_number=data['phone_number'],login_type=data['login_type'])
             print(">>>>>>>>  check phone number : {0}".format(new_user.id))
             view_otp = UserController.send_OTP(new_user.id)
-            return jsonify({"status":"success","message":"user created successfully","data":str(new_user),"OTP":"Enter this OTP : "+str(view_otp)})
+            return jsonify({"status":"success","message":"user created successfully","data":{"id":new_user.id},"OTP":"Enter this OTP : "+str(view_otp)})
     except Exception as e:
         print(str(e))
     return jsonify({"Error":"Unknown"})
