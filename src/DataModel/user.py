@@ -1,9 +1,11 @@
 from enum import Enum
+import uuid
 from xmlrpc.client import Boolean, boolean
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import BOOLEAN, Column, Integer, String, ForeignKey,DateTime,Enum
 from datetime import datetime
 import enum
+from sqlalchemy.dialects.postgresql import UUID
 
 
 Base= declarative_base()
@@ -19,7 +21,7 @@ class LoginType(enum.Enum):
 
 class User(Base):
     __tablename__ = 'user'
-    id=Column(Integer(),primary_key=True,unique=True,autoincrement=True)
+    id=Column(UUID(as_uuid=True),primary_key=True,unique=True,default=uuid.uuid4)
     username=Column(String(100))
     email=Column(String(100),unique=True)
     phone_number=Column(String(100),unique=True)
