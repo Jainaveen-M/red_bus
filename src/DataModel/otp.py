@@ -6,7 +6,7 @@ from datetime import datetime
 from src.DataModel.user import User
 
 
-Base= declarative_base()
+Base = declarative_base()
 
 
 class OTP(Base):
