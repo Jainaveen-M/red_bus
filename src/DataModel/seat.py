@@ -26,5 +26,5 @@ class PrepareSeatTable():
             id = Column(Integer(), primary_key=True)
             type =Column(Enum(SeatType))
             status = Column(Enum(SeatStatus))
-            fare_id = Column(Integer())       
+            fare = Column(Integer())       
         return Seat 

@@ -21,12 +21,12 @@ class SeatController():
         PrepareSeatTable.make_class(Base,table_name)
         Base.metadata.create_all(engine)
         
-    def add_details(table_name,type):
+    def add_details(table_name,type,fare):
         Base = declarative_base()
         db_session = Session()
         tname = PrepareSeatTable.make_class(Base,table_name)
         for i in range(1,31):
-            new_user = tname(id = i,type = type, status = "available",fare_id = 1)
+            new_user = tname(id = i,type = type, status = "available",fare = fare)
             db_session.add(new_user)   
         db_session.commit()
         

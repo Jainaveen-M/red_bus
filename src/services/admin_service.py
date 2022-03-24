@@ -22,11 +22,11 @@ def create_seats():
         print("+++++ {0}".format(j))
         SeatController.creat_table(table_name)
         if j<5:
-            SeatController.add_details(table_name,"seater")
+            SeatController.add_details(table_name,"seater",500)
         elif j<10:
-            SeatController.add_details(table_name,"sleeper")
+            SeatController.add_details(table_name,"sleeper",1000)
         else:
-            SeatController.add_details(table_name,"semi_sleeper")
+            SeatController.add_details(table_name,"semi_sleeper",750)
         j+=1
     return jsonify({"status": "success","message":li})
 

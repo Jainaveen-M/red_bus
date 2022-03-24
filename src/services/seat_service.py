@@ -21,7 +21,7 @@ def get_available_seat():
     seat = db_session.query(table)
     s_list =[]
     for s in seat:
-        s_list.append({"id":s.id,"type":str(s.type),"status":str(s.status),"fare_id":s.fare_id})
+        s_list.append({"id":s.id,"type":str(s.type),"status":str(s.status),"fare":s.fare})
     return jsonify({"table_name":table_name,"seats":s_list})
 
 
